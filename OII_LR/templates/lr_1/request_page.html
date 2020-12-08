@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}LR-1 - {{ block.super }}{% endblock %}
+
+{% block content %}
+    <h1>Запросы</h1>
+    <div class="col mt-5">
+        <form action="{% url 'request' %}" method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    {% if field.errors %}
+                        <div class="alert alert-danger">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                    {{ field.label }}: {{ field }}
+                </div>
+
+            {% endfor %}
+            <button type="submit" class="btn btn-dark">Искать</button>
+        </form>
+
+        {% if candidates %}
+            <div class="mt-5">
+                {% for candidate in candidates %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            {{ candidate.id }} {{ candidate.experience }} {{ candidate.age }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+    </div>
+{% endblock %}

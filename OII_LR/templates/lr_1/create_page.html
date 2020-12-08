@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}LR-1 Create candidate page - {{ block.super }}{% endblock %}
+
+{% block content %}
+    <h1>Создание кандидата</h1>
+    <div class="col mt-5">
+        <form action="{% url 'create_candidate' %}" method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    {% if field.errors %}
+                        <div class="alert alert-danger">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                    {{ field.label }}: {{ field }}
+                </div>
+
+            {% endfor %}
+            <button type="submit" class="btn btn-dark">Создать</button>
+        </form>
+    {% if candidates %}
+        <table border="1" class="mt-5">
+            <tr>
+                <td>ID</td>
+                <td>Experience</td>
+                <td>Age</td>
+                <td>First Name</td>
+                <td>Last Name</td>
+                <td>Experience small</td>
+                <td>Experience middle</td>
+                <td>Experience big</td>
+                <td>Age small</td>
+                <td>Age middle</td>
+                <td>Age big</td>
+            </tr>
+            {% for candidate in candidates %}
+                <tr>
+                    <td>{{ candidate.id }}</td>
+                    <td>{{ candidate.experience }}</td>
+                    <td>{{ candidate.age }}</td>
+                    <td>{{ candidate.first_name }}</td>
+                    <td>{{ candidate.last_name }}</td>
+                    <td>{{ candidate.experience_small }}</td>
+                    <td>{{ candidate.experience_middle }}</td>
+                    <td>{{ candidate.experience_big }}</td>
+                    <td>{{ candidate.age_small }}</td>
+                    <td>{{ candidate.age_middle }}</td>
+                    <td>{{ candidate.age_big }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    </div>
+{% endblock %}

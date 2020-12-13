@@ -1,8 +1,29 @@
 {% extends 'base.html' %}
 {% block title %}
-LR-2 Светофоры
+LR-3 Реактор
 {% endblock %}
 
 {% block content %}
-    SUKA
+    <form action="lr_2" method="POST">
+        {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    {% if field.errors %}
+                        <div class="alert alert-danger">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                    {{ field.label }}: {{ field }}
+                </div>
+
+            {% endfor %}
+            <button type="submit" class="btn btn-dark">Искать</button>
+    </form>
+    <div class="mt-5">
+        {% if element_to_find %}
+            {% for key, value in element_to_find.items %}
+                Не работающий элемент: {{ key }}={{ value }}
+            {% endfor %}
+        {% endif %}
+    </div>
 {% endblock %}

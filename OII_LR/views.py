@@ -1,12 +1,12 @@
-from faker import Faker
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import Q
 from django.shortcuts import render
 from django.views.generic.base import View
+from faker import Faker
 
-from OII_LR.forms import RequestForm, CreatePersonForm, TraficLightForm
+from OII_LR.forms import RequestForm, CreatePersonForm, ReactorForm
 from OII_LR.models import Candidates
-from OII_LR.utils import get_experience_affiliations, get_age_affiliations
+from OII_LR.utils import *
 
 
 def index(request):
@@ -24,12 +24,12 @@ class RequestView_LR_1(View):
                 'small': Q(experience_small__gt=0),
                 'middle': Q(experience_middle__gt=0),
                 'big': Q(experience_big__gt=0),
-            }.get(bound_form.data.get('experience'))
+            }.get(bound_form.cleaned_data.get('experience'))
             age = {
                 'small': Q(age_small__gt=0),
                 'middle': Q(age_middle__gt=0),
                 'big': Q(age_big__gt=0),
-            }.get(bound_form.data.get('age'))
+            }.get(bound_form.cleaned_data.get('age'))
             candidates = Candidates.objects.filter(age & experience)
             return render(request, 'lr_1/request_page.html', context={
                 'form': RequestForm(request.POST),
@@ -48,7 +48,7 @@ class CreateCandidateForm_LR_1(View):
     def post(self, request: WSGIRequest):
         bound_form = CreatePersonForm(request.POST)
         if bound_form.is_valid():
-            data = bound_form.data
+            data = bound_form.cleaned_data
             affiliations_age = get_age_affiliations(data.get('age'))
             affiliations_experience = get_experience_affiliations(data.get('experience'))
             faker = Faker()
@@ -65,8 +65,28 @@ class CreateCandidateForm_LR_1(View):
 
 class LR2View(View):
     def get(self, request: WSGIRequest):
-        return render(request, 'lr_2/main_page.html', context={'form': TraficLightForm()})
+        return render(request, 'lr_2/main_page.html', context={'form': ReactorForm()})
 
     def post(self, request: WSGIRequest):
-        return render(request, 'lr_2/main_page.html', context={'form': TraficLightForm()})
+        bound_form = ReactorForm(request.POST)
+        if bound_form.is_valid():
+            data = bound_form.cleaned_data
+            fuzz = fasification(data.get('Temperature'), data.get('Consumption'), data.get('Pressure'))
+            element_to_pop = None
+            for k, v in fuzz.items():
+                if v['low'] == -1:
+                    element_to_pop = k
+            fuzz.pop(element_to_pop)
+            lst = list(fuzz.keys())
+            q = {'min': min(fuzz[lst[0]]['low'], fuzz[lst[1]]['low']),
+                 'middle': max(fuzz[lst[0]]['middle'], fuzz[lst[1]]['middle']),
+                 'high': max(fuzz[lst[0]]['high'], fuzz[lst[1]]['high'])}
 
+            result = {'min': rule_small(q['min']),
+                      'middle': rule_middle(q['middle']),
+                      'high': rule_high(q['high'])}.get(max(q, key=lambda elem: q[elem]))
+
+            return render(request, 'lr_2/main_page.html', context={
+                'form': ReactorForm(request.POST),
+                'element_to_find': {element_to_pop: result}
+            })

@@ -17,5 +17,7 @@ class CreatePersonForm(forms.Form):
     age.widget.attrs.update({'class': 'form-select form-select-lg mb-3'})
 
 
-class TraficLightForm(forms.Form):
-    flux_destiny = forms.FloatField(min_value=0, max_value=1)
+class ReactorForm(forms.Form):
+    Temperature = forms.FloatField(min_value=-1, max_value=150, initial=85)
+    Consumption = forms.FloatField(min_value=-1, max_value=8, initial=3.5)
+    Pressure = forms.FloatField(min_value=-1, max_value=100, initial=-1)
